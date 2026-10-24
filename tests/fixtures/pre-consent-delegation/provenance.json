@@ -1,0 +1,8 @@
+{
+  "source": "reviews/conformance-2026-10-23/evidence/reproduction-check/container-stores/delegation-without-principal-consent",
+  "description": "Authentic pre-consent-fix persisted store, produced by the saved conformance probe through public APIs. Copied without rewriting events, receipts, checksums or effects. Synthetic credentials only.",
+  "sha256": {
+    "state.json": "a6d86a4d57fccd1f63bda8b437bc7ef05cf32b2f611e4f4468af6d52f5d125c9",
+    "adapter.json": "999821474f299bb22fd71e51879415c201acfd47003ba96f480d6665f3dded90"
+  }
+}

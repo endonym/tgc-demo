@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+cd "$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+if command -v cargo >/dev/null 2>&1; then
+    tgc_cargo=$(command -v cargo)
+else
+    tgc_cargo="$HOME/.cargo/bin/cargo"
+fi
+exec "$tgc_cargo" run --quiet --locked --offline --release --bin tgc-demo -- "$@"

@@ -1,0 +1,25 @@
+{
+  "source": "../ConstitutiveActionKernel",
+  "git_head": "0beb8a8b347dafea76558ebbbd4e5e942f631b71",
+  "basis": "Reviewed working tree including completeness precedence, conformance mutation and input-expiry fixes; original snapshot retained; changes are not yet committed. The vendored README describes this subset.",
+  "files": {
+    "Cargo.toml": "9c2cb1578587835a4322eb64a0a599742579a41d04bcc0cda524dd573ac558f7",
+    "LICENSE": "6971dd975d750258181454883a9099308bf746a2c928931b666bf16468116ca0",
+    "README.md": "41411e8990ae66aaaedf051ea2e0c9028af9ceba696ccf57ba6ec89b069cea84",
+    "src/host_conformance.rs": "2e52fc40560ca81d500b940c06da88a4140496de9d69edec03a0531497ac371b",
+    "src/lib.rs": "70f9fccbd051b02bd7f1454f0ed6bea796929cb8b779475784104170997d7db9",
+    "src/v1.rs": "56497a1d0b508453df267ebc218d80e7421063c2aeb21e0a441c0edfeb30febe"
+  },
+  "original_snapshot": {
+    "git_head": "aa587f0b91ee3c4b2740abaa8215380a7874bb68",
+    "basis": "working-tree snapshot, including uncommitted v1; source files unchanged",
+    "files": {
+      "Cargo.toml": "6a5b3908a180a551236540d404cd92cb9b0e64825cf5401428abe118473018d2",
+      "LICENSE": "6971dd975d750258181454883a9099308bf746a2c928931b666bf16468116ca0",
+      "README.md": "7b374c119da4ea5824476f4c7b65bcbb6060f1330103cedf86153b07de876af7",
+      "src/host_conformance.rs": "eabdf9376269848b9cb888fbff8352691afa3e1ed8a3877f916db6882ed9cb9f",
+      "src/lib.rs": "70f9fccbd051b02bd7f1454f0ed6bea796929cb8b779475784104170997d7db9",
+      "src/v1.rs": "c469aef2476285eafe3522c5382bee8c912eb6b3098bd17953858ab0a7e2447d"
+    }
+  }
+}

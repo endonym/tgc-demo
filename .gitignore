@@ -1,0 +1,12 @@
+/target/
+/runs/
+/reviews/
+__pycache__/
+*.tmp
+AGENTS.md
+
+# Local OS, Python and editor files
+.DS_Store
+*.py[cod]
+*.swp
+*.swo
