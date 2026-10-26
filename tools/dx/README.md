@@ -1,10 +1,13 @@
 # Local evidence capture
 
-This tooling captures Rust executions and checks their evidence.
+This tooling captures Rust executions and checks their evidence. Choose the workflow you need:
+
+- Use `prepare` → `collect` → `check_evidence.py` to create and check an evidence collection.
+- Use `tools/verify.py` to capture tests, examples and formatting checks together with a local archive of their source inputs. See [Validation](../../docs/validation.md).
 
 ## Capture and check
 
-Prepare runs the scenarios and tests. Collect verifies the captured results and
+`prepare` runs the scenarios and tests. `collect` verifies the captured results and
 assembles the evidence files.
 
 From TGC-Demo, with the sibling ConstitutiveActionKernel checkout and locked Rust
@@ -33,9 +36,10 @@ their SHA-256 hashes.
 JSON regression records remain byte-identical; diagnostic workspace paths are
 normalised. Private issuer material and input archives are excluded.
 
-The checker verifies branch hashes, decision/event correspondence, payload and
-evidence bindings, exact receipt/attempt relationships, crash recovery, transcript
-counts and hashes, and the regression inventory. 
+The checker verifies branch hashes, whether recorded events match their decisions,
+whether payloads and evidence match their recorded bindings, and whether receipts
+refer to the correct attempts. It also checks crash recovery, transcript counts
+and hashes, and the expected regression records.
 
 To capture tests, formatting checks and examples together with a local archive of
 their source inputs, use

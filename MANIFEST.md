@@ -10,7 +10,7 @@ In **control mode**, procedure comes from environment authority; in **constituti
 
 A receiving peer revalidates an attached upstream exception under its own policy and governs its next action without consulting the originating container. Upstream permission does not replace the recipient's decision.
 
-Records attribute acts to proof-producing seats and preserve consequence references. Participating institutions resolve identity and administer consequences.
+Records attribute each action through its producer’s proof and retain the applicable consequence references. Participating institutions resolve identity and administer consequences.
 
 ## Reference implementation
 

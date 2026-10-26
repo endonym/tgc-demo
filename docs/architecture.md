@@ -2,7 +2,7 @@
 
 ## Action boundary
 
-An Activity Field Container supports two authority topologies: controlled activity uses environment authority; constitutive activity uses participant commitments. For a mediated effect, the host-controlled adapter executes only the exact effect admitted under recorded authority. The host validates supplied proofs, bindings and required acceptances, retains the effectful capability, orders reservations against changes of authority and records what occurred. The kernel evaluates the supplied snapshot; it does not determine an agent's internal objectives.
+An Activity Field Container supports two authority topologies: controlled activity uses environment authority; constitutive activity uses participant commitments. For a mediated effect, the host-controlled adapter executes only the exact effect admitted under recorded authority. The host validates the supplied proofs, their bindings and required acceptances. It keeps the credentials and access needed to execute the action, orders reservations against changes of authority, and records what happened. The kernel evaluates the supplied snapshot; it does not determine an agent's internal objectives.
 
 | Module | Responsibility |
 |---|---|
@@ -15,35 +15,53 @@ An Activity Field Container supports two authority topologies: controlled activi
 | `scenario` | Settlement facts, narration, deterministic optimizer and branch orchestration |
 | `main` | Run, matrix, inspection, replay, verification and recovery commands |
 
-Only the capability-holding adapter writes a mock external occurrence. Its mutation functions are crate-private, require a persisted ticket and compare the actual effect with the admitted effect. Participant APIs cannot dispatch directly. Activity recovery acquires exclusive ownership and applies the activity's migration policy before reconciling reserved attempts; generic host recovery refuses activity stores.
+Only the adapter can write a mock external effect. Its mutation functions are crate-private, require a persisted ticket and compare the actual effect with the admitted effect. Participant APIs cannot dispatch directly.
 
-Identity and standing can be supplied by an institution's existing systems or by PoH, according to the activity. This implementation uses the concrete `identity::Issuers` and `Proof` types. A field receives presentations and never creates them. Participants can validate public material before submission; recipients validate again at their own boundary. Peer validation has no reference to the originating `Field`, although the simulation supplies both with the same read-only issuer verifier.
+Activity recovery acquires exclusive ownership and applies the activity's migration policy before reconciling reserved attempts; generic host recovery refuses activity stores.
+
+Identity and standing can be supplied by an institution's existing systems or by Proof of Honesty (PoH), according to the activity. This implementation uses the concrete `identity::Issuers` and `Proof` types. A field receives presentations and never creates them. Participants can validate public material before submission; recipients validate again at their own boundary. Peer validation has no reference to the originating `Field`, although the simulation supplies both with the same read-only issuer verifier.
 
 ## Rulebooks and commitments
 
 Base rules use `urn:rule:index:modifier:description_hash:rulebook_uuid` identifiers; their concatenation identifies the base Rulebook URN. A separate canonical JSON hash addresses the complete demo document, including machine predicates. Interpretation hashes cover their parent, author URN, level and edits. Publishing a new interpretation authenticates its rulebook-scoped author identity against the publishing credential.
 
-Inheritance follows Document → Lead → Moderator → User. The zeroth rule is mandatory. `Public` rules and phrases can be omitted or interpreted; `Protected` material remains mandatory but can be interpreted; `Final` material cannot be reinterpreted. A `Final` rule can contain a separately interpretable phrase. Modification controls can only tighten, and omitted inherited material cannot be silently revived.
+Inheritance follows Document → Lead → Moderator → User. The zeroth rule is mandatory. Modifiers control how inherited rules and phrases may change:
+
+| Modifier | Permitted changes |
+| --- | --- |
+| `Public` | Rules and phrases may be omitted or interpreted. |
+| `Protected` | Material must remain present but may be interpreted. |
+| `Final` | Material cannot be reinterpreted. |
+
+A `Final` rule can contain a separately interpretable phrase. Modification controls can only tighten, and omitted inherited material cannot be silently revived.
 
 The engine evaluates typed predicates. Prose and its explicitly supplied predicate are stored together. An `Unresolved` predicate evaluates to `Unknown`; predicate composition and the required checks determine the action’s decision. A different root rulebook receives a new identity. Amendment and promotion create new content-addressed records. Earlier records and proof references are preserved.
 
-A commitment contains scope and condition predicates, interpreted rules, delegation, a separately eligible exception, consequence references, affected seats and a validity window. The host supplies `host.tick` from the execution call and derives `host.count` from reservations under the route’s authority, including uncertain attempts and the proposed attempt. Participant payloads cannot supply `host.*` facts.
+A commitment records the scope of permitted work, its conditions and interpreted rules, any delegation, a separately eligible exception, consequence references, affected seats and a validity window. Seats are scoped references used to attribute actions through participant proofs.
+
+The host supplies `host.tick` from the execution call and derives `host.count` from reservations under the route’s authority, including uncertain attempts and the proposed attempt. Participant payloads cannot supply `host.*` facts.
 
 ## Authority and change
 
-An ordinary delegated action needs the principal's scoped grant. In this demo, proposing and accepting that path requires the principal's PoH-backed consent to the exact governance action, even when the principal is outside the owner/controller set. Amendments and promotions require renewed consent from the previous and resulting grantors, including removal of delegation. Changes to scope, delegate, validity or consequence terms therefore require fresh approval.
+An ordinary delegated action needs a scoped grant from the principal—the participant on whose behalf the agent acts. The participant giving that grant is the grantor. In this demo, proposing and accepting that path requires the principal's PoH-backed consent to the exact governance action, even when the principal is outside the owner/controller set.
 
-The exception route has its own eligibility predicate, authority and required officer acceptance. It does not convert a failed ordinary mandate into permission. The proof producer remains the recorded accountable bearer for each act. Delegation provides authority to act without erasing that attribution. A downstream act has its own proof and preserves the upstream evidence. The relevant institutions determine and administer consequences; the demo preserves the applicable consequence references for those institutions.
+Amendments and promotions require renewed consent from the previous and resulting grantors, including removal of delegation. Changes to scope, delegate, validity or consequence terms therefore require fresh approval.
+
+The exception route has its own eligibility predicate, authority and required officer acceptance. It does not convert a failed ordinary mandate into permission.
+
+The proof producer remains the recorded accountable bearer for each act. Delegation provides authority to act without erasing that attribution. A downstream act has its own proof and preserves the upstream evidence. The relevant institutions determine and administer consequences; the demo preserves the applicable consequence references for those institutions.
 
 Control topology establishes procedures under environment authority; constitutive topology establishes them under participant commitments. Both preserve grantor consent. In the fixture the controller is also the initial grantor, so initial control activation requires one acceptance and constitutive activation requires both owners. A distinct grantor adds its own acceptance.
 
 Lifecycle verbs are `propose`, `accept`, `amend`, `withdraw`, `contest`, `escalate`, `fork`, `publish`, `resolve` and `promote`. Promotion requires a resolved queue item for the same path and offered interpretation, plus the required consents. Control promotion additionally requires environment authority. Withdrawal removes future path authority; credential revocation is separate. Neither erases an earlier occurrence.
 
-Fresh delegated execution requires a confirmed activation, amendment or promotion containing the grantor's exact bound acceptance. An existing store without that grant cannot authorize fresh delegated work; the parties can constitute replacement terms. Historical records and completed replay identities are retained. Field recovery rejects an unexecuted reservation lacking the grant while reconciling an effect already observed under its original replay identity. Grant validity is established at constitution; later changes of the grantor's standing do not automatically cancel it.
+Before new delegated work can execute, the store must contain a confirmed activation, amendment or promotion with the grantor's acceptance of that exact governance action. An existing store without that grant cannot authorize fresh delegated work; the parties can constitute replacement terms. Historical records and completed replay identities are retained.
+
+Field recovery rejects an unexecuted reservation lacking the grant while reconciling an effect already observed under its original replay identity. Grant validity is established at constitution; later changes of the grantor's standing do not automatically cancel it.
 
 ## Discovery, composition and extension
 
-Discovery stubs are JSON objects with six fields:
+A discovery stub points newcomers to the published terms, interpretation and commitment evidence they need to evaluate participation. It is a JSON object with six fields:
 
 ```text
 rulebook_id, lead_id, mod_id, rule_interpretation_hash,
@@ -54,7 +72,11 @@ commitment_ref, transaction_hash
 
 A newcomer uses its own facts and public discovery. It selects a qualifying moderator under the accepted Lead, satisfies the published admission predicate and produces its own proof. Any valid moderator under that Lead can qualify, including one published later. There is no field-level participant roster or add-participant operation.
 
-Composition is an independently accountable act under the published predicates; it does not inherit the founders' delegation. A participant may publish a permitted interpretation without changing an incumbent commitment. A disagreement queues until resolution and the required consents adopt changed terms. An independent recipient revalidates an attached upstream exception under its own policy and can refuse, honour or preserve uncertainty.
+Composition lets a newcomer act under the published rules using its own proof. Its actions remain attributable to it; joining does not give it the founders' delegated authority.
+
+A participant may publish a permitted interpretation without changing an existing commitment. A disagreement queues until resolution and the required consents adopt changed terms.
+
+An independent recipient revalidates an attached upstream exception under its own policy and can refuse, honour or leave its decision unresolved.
 
 The current container fixes the `generic-record/v1` effect profile and mock endpoint. Different utilities can be implemented by extending or forking the host, profiles and adapters while retaining the authority boundary. The [durable effect example](../examples/durable_effect.rs) uses another profile at the kernel/host boundary. The recipient example validates exception-authority evidence independently of its originating coordination venue.
 

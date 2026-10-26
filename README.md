@@ -1,8 +1,10 @@
 # TGC settlement demonstration
 
-Participants authorize bounded delegated work so that agents can act within agreed terms without repeated approval of each ordinary action. The action boundary checks the exact proposed effect before execution, preserves evidence of authority and outcome, and requires the specified consent for exceptions and changes to commitments. Another recipient can validate an attached upstream exception under its own policy without consulting the originating container.
+Participants authorise bounded work in advance, so agents can perform ordinary actions without asking for approval each time. The container checks each proposed action against those terms and records its authority and outcome. Exceptions and changes require the specified consent. A separate recipient can check the attached exception evidence under its own policy, without consulting the original container.
 
-This Rust demonstration implements an Activity Field Container with controlled and constitutive activity topologies. It runs participants, a scripted optimizer, identity and standing fixtures, an independent recipient and durable infrastructure mocks in one local process. Financial settlement is the example activity and it's no coincidence that the architecture carries the same name. The kernel and action-boundary model are generic; the demo makes no LLM calls or real asset transfers.
+This Rust demonstration implements an Activity Field Container with two authority topologies: **controlled** activity uses environment authority; **constitutive** activity uses participant commitments.
+
+It runs participants, a scripted optimizer, identity and standing fixtures, an independent recipient and durable infrastructure mocks in one local process. Financial settlement is the example activity and it's no coincidence that the architecture carries the same name. The kernel and action-boundary model are generic; the demo makes no LLM calls or real asset transfers.
 
 Start here, then read [architecture and protocol](docs/architecture.md) for the boundaries and [validation](docs/validation.md) for claims linked to executable tests. The [deployment manifest](MANIFEST.md) describes the local deployment and integration responsibilities. The [interactive walkthrough](https://thegenerativecommons.org/activity-container.html) presents recorded Rust executions.
 
@@ -17,13 +19,15 @@ Requires Rust 1.99 or later. On a fresh machine, fetch the locked dependencies o
 ./check
 ```
 
-Choose a new output directory for each run; existing runs are preserved. The default is **constitutive / fork / indeterminate**. It exercises all four kernel outcomes, resolves both queues and closes with “Nobody onboarded them. They read the stubs.” Here onboarding means discretionary, participant-specific intervention; automatic admission checks and credential issuance remain visible in the log.
+Choose a new output directory for each run; existing runs are preserved. The default is **constitutive / fork / indeterminate**: participants establish the path through commitments, a newcomer proposes a changed interpretation, and the recipient initially leaves its decision unresolved. Here `indeterminate` selects the recipient response, not the outcome of the whole run.
+
+The run exercises all four kernel outcomes, resolves both queues and closes with “Nobody onboarded them. They read the stubs.” Here onboarding means discretionary, participant-specific intervention; automatic admission checks and credential issuance remain visible in the log.
 
 The three movements are:
 
-1. **Constitution.** The parties choose scope, conditions, delegation and a separately eligible exception route. Proposal, acceptance and publication are governed acts. The agent confirms and settles through durable record mocks.
-2. **Enforcement.** The optimizer selects a cheaper venue outside its ordinary mandate. The instruction is prevented. An officer proposes a distinct eligible exception, which requires acceptance of that exact effect and retains the officer's accountable proof. Approval does not widen the failed ordinary mandate.
-3. **Composition and change.** A newcomer discovers published terms, satisfies admission criteria and acts on its own account. Participants can propose a changed interpretation. A disputed interpretation queues for resolution; adopting changed terms requires the specified consents. An independent recipient validates the attached upstream exception and applies its own refusal, acceptance or unresolved policy.
+1. **Constitution.** The parties establish what the agent may do, under which conditions, and how an exception can be authorised. Proposal, acceptance and publication are governed acts. The agent confirms and settles through durable record mocks.
+2. **Enforcement.** The optimizer selects a cheaper venue outside its ordinary mandate. The instruction is prevented. An officer proposes a separate exception under its own eligibility rules. It requires acceptance of that exact effect and retains the officer's accountable proof. Approval does not widen the failed ordinary mandate.
+3. **Composition and change.** A newcomer discovers published terms, satisfies admission criteria and acts on its own account. Participants can propose a changed interpretation. A disputed interpretation enters a queue for resolution. Adopting changed terms requires the specified consents. An independent recipient validates the attached upstream exception and applies its own refusal, acceptance or unresolved policy.
 
 ```sh
 ./demo run --topology control --composition reuse --downstream refuse --out runs/control-refuse
@@ -31,11 +35,11 @@ The three movements are:
 ./demo matrix --out runs/matrix
 ```
 
-The matrix covers twelve combinations: two topologies, reuse/fork and refuse/honour/indeterminate. Control topology sources constitution authority from the environment; constitutive topology sources it from participant commitments. Both use the same optimizer, gate and adapters, and both require the principal's consent to delegated authority. The comparison exposes authority and approval differences.
+The matrix covers twelve combinations: two topologies, reuse/fork and refuse/honour/indeterminate. Both topologies use the same optimizer, gate and adapters. Both require consent from the principal—the participant granting the agent authority to act on their behalf. The comparison exposes authority and approval differences.
 
 ## Read the evidence
 
-Start with `report.json` for the selected branch, then follow decisions and receipts in `events.jsonl` and `peer-events.jsonl`. `discovery.json` contains the public rulebooks, interpretations, commitments and stubs. Inspect stubs for published terms and interpretations, proposal IDs for action records, and hashes for stored evidence.
+Start with `report.json` for the selected branch, then follow decisions and receipts in `events.jsonl` and `peer-events.jsonl`. `discovery.json` contains the public rulebooks, interpretations, commitments and discovery stubs. A stub is a published record pointing to the terms and evidence needed to participate. Use proposal IDs to inspect action records and hashes to look up stored evidence.
 
 ```sh
 ./demo inspect runs/demo stub:0
@@ -44,7 +48,7 @@ Start with `report.json` for the selected branch, then follow decisions and rece
 ./demo replay runs/demo 2b --out runs/replayed-exception
 ```
 
-Replay executes the Rust flow in a fresh store and compares the complete semantic transcript. Available beats are `constitution`, `1a`, `2a`, `2b`, `3a`, `3b`, `3c` and `close`. `semantic.json` excludes wall-clock time and measured durations so that these comparisons are stable.
+Replay executes the Rust flow in a fresh store and compares the complete semantic transcript: the execution record with timing-dependent information removed. Available beats are `constitution`, `1a`, `2a`, `2b`, `3a`, `3b`, `3c` and `close`. `semantic.json` excludes wall-clock time and measured durations so that these comparisons are stable.
 
 | Artifact | Contents |
 |---|---|
