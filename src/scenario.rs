@@ -5,7 +5,7 @@ use crate::{
     protocol::*,
     rules::*,
 };
-use constitutive_action::v1::{ActionIntent, DecisionKind};
+use constitutive_action::v1::{ActionIntent, DecisionKind, ExecutionOutcome};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::{
@@ -21,12 +21,21 @@ pub enum Composition {
     Reuse,
     Fork,
 }
+/// Who signs a mid-activity amendment of the agreed terms.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Consent {
+    Agreed,
+    Initiator,
+}
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Config {
     pub topology: Topology,
     pub composition: Composition,
     pub downstream: RecipientPolicy,
     pub newcomer_seed: String,
+    /// Optional beat; omitted from reports when absent so earlier runs are unchanged.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub amendment: Option<Consent>,
 }
 impl Default for Config {
     fn default() -> Self {
@@ -35,6 +44,7 @@ impl Default for Config {
             composition: Composition::Fork,
             downstream: RecipientPolicy::Unresolved,
             newcomer_seed: "unfamiliar-third-party".into(),
+            amendment: None,
         }
     }
 }
@@ -866,6 +876,9 @@ pub fn run(root: &Path, config: Config) -> Result<Report> {
             DecisionKind::Permitted,
         )?;
     }
+    if let Some(consent) = config.amendment {
+        amend_terms(&mut field, &f, &active_path, consent)?;
+    }
     let finale = "Nobody onboarded them. They read the stubs.";
     field.event(&Scene::new("III", "close"), "finale", json!({"text":finale,"meaning":"no discretionary participant-specific onboarding; automated credential issuance is logged"}))?;
     let primary = field.host().state()?;
@@ -920,6 +933,113 @@ pub fn run(root: &Path, config: Config) -> Result<Report> {
         serde_json::to_vec_pretty(&report)?,
     )?;
     Ok(report)
+}
+
+/// The principal tightens the agreed limit to 600 mid-activity. Under Control
+/// the controller's signature changes the terms for everyone; under
+/// Constitutive the change waits for the counterparty. Either way, acts
+/// already confirmed stay bound to the terms they were judged under.
+fn amend_terms(
+    field: &mut Field,
+    f: &Fixture,
+    current: &Commitment,
+    consent: Consent,
+) -> Result<()> {
+    let scene = Scene::new("III", "3d");
+    let mut amended = current.clone();
+    amended.parent_ref = Some(current.reference());
+    amended.scope = scope(600);
+    let signers: Vec<&Participant> = match consent {
+        Consent::Agreed => vec![&f.principal, &f.counterparty],
+        Consent::Initiator => vec![&f.principal],
+    };
+    field.event(&scene, "amendment_proposed", json!({"from_ref":current.reference(),"to_ref":amended.reference(),"amount_max":600,"consent":consent,"authority_source":field.topology}))?;
+    let applies = !(field.topology == Topology::Constitutive && consent == Consent::Initiator);
+    let decision = govern(
+        field,
+        f,
+        &scene,
+        "amendment",
+        change("amend", &current.reference(), Some(amended.clone())),
+        &signers,
+    )?;
+    expect(
+        decision,
+        if applies {
+            DecisionKind::Permitted
+        } else {
+            DecisionKind::DecisionRequired
+        },
+    )?;
+    if applies && signers.len() == 1 {
+        field.event(&scene, "unilateral_change", json!({"path_ref":amended.reference(),"previous_ref":current.reference(),"signer":f.principal.seat("activity:demonstration"),"not_consulted":f.counterparty.seat("activity:demonstration")}))?;
+    } else if !applies {
+        field.event(&scene, "amendment_awaiting_consent", json!({"path_ref":current.reference(),"candidate_ref":amended.reference(),"missing":f.counterparty.seat("activity:demonstration")}))?;
+    }
+
+    // Earlier confirmed acts keep resolving to the exact terms they cite.
+    let state = field.host().state()?;
+    let discovery = field.discovery();
+    let mut reverified = 0;
+    for record in state.records.values() {
+        let confirmed = record
+            .receipt
+            .as_ref()
+            .is_some_and(|r| matches!(r.outcome, ExecutionOutcome::Confirmed { .. }));
+        let Ok(payload) =
+            serde_json::from_slice::<Payload>(&record.intent.effect.canonical_payload)
+        else {
+            continue;
+        };
+        if confirmed {
+            let cited = discovery
+                .commitments
+                .get(&payload.path_ref)
+                .ok_or("confirmed act cites unknown terms")?;
+            ensure(
+                cited.reference() == payload.path_ref,
+                "confirmed act no longer resolves to its terms",
+            )?;
+            reverified += 1;
+        }
+    }
+    field.event(
+        &scene,
+        "prior_acts_reverified",
+        json!({"count":reverified,"amendment_applied":applies}),
+    )?;
+
+    let under_current = instruction(
+        "post-amendment-current",
+        &f.agent,
+        current,
+        Route::Ordinary,
+        &facts("venue-A", 650),
+        f.issuers.epoch(),
+    );
+    expect(
+        submit(field, &scene, &f.issuers, &under_current, 20)?,
+        if applies {
+            DecisionKind::Prevented
+        } else {
+            DecisionKind::Permitted
+        },
+    )?;
+    if applies {
+        let under_amended = instruction(
+            "post-amendment-amended",
+            &f.agent,
+            &amended,
+            Route::Ordinary,
+            &facts("venue-A", 650),
+            f.issuers.epoch(),
+        );
+        expect(
+            submit(field, &scene, &f.issuers, &under_amended, 20)?,
+            DecisionKind::Prevented,
+        )?;
+    }
+    Ok(())
 }
 
 pub fn export_events(path: &Path, events: &[audit::Event]) -> Result<()> {

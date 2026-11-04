@@ -6,13 +6,13 @@ use std::{
 use tgc_demo::{
     Result, audit, ensure,
     protocol::{Discovery, RecipientPolicy, Topology},
-    scenario::{self, Composition, Config, Report},
+    scenario::{self, Composition, Config, Consent, Report},
     store::Host,
 };
 
 fn help() {
     println!(
-        "TGC flat Rust demo\n\n  tgc-demo run [--out runs/demo] [--topology constitutive|control]\n               [--composition fork|reuse] [--downstream indeterminate|honour|refuse]\n               [--newcomer-seed arbitrary-value] [--json]\n  tgc-demo matrix [--out runs/matrix]\n  tgc-demo verify RUN\n  tgc-demo inspect RUN [HASH | stub:INDEX | queue | --interactive]\n  tgc-demo replay RUN BEAT [--out NEW_RUN]\n  tgc-demo recover RUN\n\nBeats: constitution, 1a, 2a, 2b, 3a, 3b, 3c, close.\nRuns locally with simulated Proof of Honesty and JSON records."
+        "TGC flat Rust demo\n\n  tgc-demo run [--out runs/demo] [--topology constitutive|control]\n               [--composition fork|reuse] [--downstream indeterminate|honour|refuse]\n               [--amendment agreed|initiator] [--newcomer-seed arbitrary-value] [--json]\n  tgc-demo matrix [--out runs/matrix]\n  tgc-demo verify RUN\n  tgc-demo inspect RUN [HASH | stub:INDEX | queue | --interactive]\n  tgc-demo replay RUN BEAT [--out NEW_RUN]\n  tgc-demo recover RUN\n\nBeats: constitution, 1a, 2a, 2b, 3a, 3b, 3c, 3d (with --amendment), close.\nRuns locally with simulated Proof of Honesty and JSON records."
     );
 }
 fn flag(args: &[String], key: &str) -> Result<Option<String>> {
@@ -144,6 +144,13 @@ fn execute() -> Result<()> {
                     _ => return Err("unknown downstream policy".into()),
                 };
             }
+            if let Some(v) = flag(&args, "--amendment")? {
+                config.amendment = Some(match v.as_str() {
+                    "agreed" => Consent::Agreed,
+                    "initiator" => Consent::Initiator,
+                    _ => return Err("unknown amendment consent".into()),
+                });
+            }
             if let Some(v) = flag(&args, "--newcomer-seed")? {
                 config.newcomer_seed = v;
             }
@@ -181,12 +188,30 @@ fn execute() -> Result<()> {
                     }
                 }
             }
+            // Mid-activity amendment: who can change the agreed terms.
+            for topology in [Topology::Control, Topology::Constitutive] {
+                for consent in [Consent::Agreed, Consent::Initiator] {
+                    let name = format!("{topology:?}-amend-{consent:?}").to_lowercase();
+                    let report = scenario::run(
+                        &out.join(&name),
+                        Config {
+                            topology,
+                            composition: Composition::Reuse,
+                            downstream: RecipientPolicy::Honour,
+                            amendment: Some(consent),
+                            ..Config::default()
+                        },
+                    )?;
+                    println!("{name}: complete");
+                    reports.push(report);
+                }
+            }
             fs::write(
                 out.join("comparison.json"),
                 serde_json::to_vec_pretty(&reports)?,
             )?;
             println!(
-                "All 12 combinations completed. Comparison: {}",
+                "All 16 runs completed. Comparison: {}",
                 out.join("comparison.json").display()
             );
         }
@@ -216,8 +241,18 @@ fn execute() -> Result<()> {
             let root = Path::new(args.get(1).ok_or("replay requires run directory")?);
             let beat = args.get(2).ok_or("replay requires beat")?;
             ensure(
-                ["constitution", "1a", "2a", "2b", "3a", "3b", "3c", "close"]
-                    .contains(&beat.as_str()),
+                [
+                    "constitution",
+                    "1a",
+                    "2a",
+                    "2b",
+                    "3a",
+                    "3b",
+                    "3c",
+                    "3d",
+                    "close",
+                ]
+                .contains(&beat.as_str()),
                 "unknown beat",
             )?;
             let report: Report = serde_json::from_slice(&fs::read(root.join("report.json"))?)?;

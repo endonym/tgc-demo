@@ -37,6 +37,8 @@ The three movements are:
 
 The matrix covers twelve combinations: two topologies, reuse/fork and refuse/honour/indeterminate. Both topologies use the same optimizer, gate and adapters. Both require consent from the principal—the participant granting the agent authority to act on their behalf. The comparison exposes authority and approval differences.
 
+The matrix also runs four amendment cases (`--amendment agreed|initiator`, beat `3d`): the principal tightens the agreed limit from 800 to 600 mid-activity, with or without the counterparty's signature. Under control topology the controller's signature alone changes the terms; under constitutive topology the change waits for the counterparty. In every case, acts already confirmed still resolve to the terms they cite.
+
 ## Read the evidence
 
 Start with `report.json` for the selected branch, then follow decisions and receipts in `events.jsonl` and `peer-events.jsonl`. `discovery.json` contains the public rulebooks, interpretations, commitments and discovery stubs. A stub is a published record pointing to the terms and evidence needed to participate. Use proposal IDs to inspect action records and hashes to look up stored evidence.
@@ -48,7 +50,7 @@ Start with `report.json` for the selected branch, then follow decisions and rece
 ./demo replay runs/demo 2b --out runs/replayed-exception
 ```
 
-Replay executes the Rust flow in a fresh store and compares the complete semantic transcript: the execution record with timing-dependent information removed. Available beats are `constitution`, `1a`, `2a`, `2b`, `3a`, `3b`, `3c` and `close`. `semantic.json` excludes wall-clock time and measured durations so that these comparisons are stable.
+Replay executes the Rust flow in a fresh store and compares the complete semantic transcript: the execution record with timing-dependent information removed. Available beats are `constitution`, `1a`, `2a`, `2b`, `3a`, `3b`, `3c`, `3d` (amendment runs only) and `close`. `semantic.json` excludes wall-clock time and measured durations so that these comparisons are stable.
 
 | Artifact | Contents |
 |---|---|

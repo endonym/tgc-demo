@@ -51,9 +51,9 @@ The exception route has its own eligibility predicate, authority and required of
 
 The proof producer remains the recorded accountable bearer for each act. Delegation provides authority to act without erasing that attribution. A downstream act has its own proof and preserves the upstream evidence. The relevant institutions determine and administer consequences; the demo preserves the applicable consequence references for those institutions.
 
-Control topology establishes procedures under environment authority; constitutive topology establishes them under participant commitments. Both preserve grantor consent. In the fixture the controller is also the initial grantor, so initial control activation requires one acceptance and constitutive activation requires both owners. A distinct grantor adds its own acceptance.
+Control topology establishes procedures under environment authority; constitutive topology establishes them under participant commitments. Both preserve grantor consent. In the fixture the controller is also the initial grantor, so initial control activation requires one acceptance and constitutive activation requires both owners. A distinct grantor adds its own acceptance. The topologies differ most when terms change: under control topology the controller amends or promotes without the owners' acceptance; under constitutive topology every affected owner, before and after the change, must accept.
 
-Lifecycle verbs are `propose`, `accept`, `amend`, `withdraw`, `contest`, `escalate`, `fork`, `publish`, `resolve` and `promote`. Promotion requires a resolved queue item for the same path and offered interpretation, plus the required consents. Control promotion additionally requires environment authority. Withdrawal removes future path authority; credential revocation is separate. Neither erases an earlier occurrence.
+Lifecycle verbs are `propose`, `accept`, `amend`, `withdraw`, `contest`, `escalate`, `fork`, `publish`, `resolve` and `promote`. Promotion requires a resolved queue item for the same path and offered interpretation, plus the required consents. Control amendment and promotion require environment authority and the grantor's acceptance, not the owners'. Withdrawal removes future path authority; credential revocation is separate. Neither erases an earlier occurrence.
 
 Before new delegated work can execute, the store must contain a confirmed activation, amendment or promotion with the grantor's acceptance of that exact governance action. An existing store without that grant cannot authorize fresh delegated work; the parties can constitute replacement terms. Historical records and completed replay identities are retained.
 
@@ -75,6 +75,8 @@ A newcomer uses its own facts and public discovery. It selects a qualifying mode
 Composition lets a newcomer act under the published rules using its own proof. Its actions remain attributable to it; joining does not give it the founders' delegated authority.
 
 A participant may publish a permitted interpretation without changing an existing commitment. A disagreement queues until resolution and the required consents adopt changed terms.
+
+The optional amendment beat (`3d`, selected with `--amendment agreed|initiator`) has the principal tighten the active path's amount limit to 600, signed by both owners or by the principal alone. It records `amendment_proposed`, then `unilateral_change` when one signature changed the terms or `amendment_awaiting_consent` when the change needs the counterparty. `prior_acts_reverified` counts confirmed acts that still resolve to the exact terms they cite. A 650 settlement is then submitted: prevented under both the superseded and the amended terms when the amendment applied, permitted under the unchanged terms when it did not.
 
 An independent recipient revalidates an attached upstream exception under its own policy and can refuse, honour or leave its decision unresolved.
 
