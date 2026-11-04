@@ -1106,12 +1106,15 @@ impl Field {
             Verdict::Fail
         };
         let owners = previous.map_or(&path.owners, |p| &p.owners);
+        // Control: the controller changes terms alone, amendments and
+        // promotions included. Constitutive: prior and new owners consent.
         let mut required = match self.topology {
             Topology::Control => vec![self.controller_seat.clone()],
             Topology::Constitutive => owners.clone(),
         };
-        if matches!(change.verb.as_str(), "amend" | "promote") {
-            required.extend(owners.iter().cloned());
+        if self.topology == Topology::Constitutive
+            && matches!(change.verb.as_str(), "amend" | "promote")
+        {
             required.extend(path.owners.iter().cloned());
             required.sort();
             required.dedup();
@@ -1125,11 +1128,6 @@ impl Field {
         }
         if matches!(change.verb.as_str(), "contest" | "escalate" | "fork") {
             required.clear();
-        }
-        if change.verb == "promote" && self.topology == Topology::Control {
-            required.extend(owners.iter().cloned());
-            required.sort();
-            required.dedup();
         }
         // Environment authority and path ownership cannot grant another
         // principal's delegation. The grantor must consent to the exact path

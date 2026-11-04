@@ -96,6 +96,51 @@ fn all_twelve_topology_composition_recipient_combinations() {
 }
 
 #[test]
+fn only_control_lets_one_party_change_the_terms() {
+    let t = Temp::new();
+    for topology in [Topology::Control, Topology::Constitutive] {
+        for consent in [Consent::Agreed, Consent::Initiator] {
+            let root = t.0.join(format!("{topology:?}-amend-{consent:?}"));
+            let report = run(
+                &root,
+                Config {
+                    topology,
+                    composition: Composition::Reuse,
+                    downstream: RecipientPolicy::Honour,
+                    amendment: Some(consent),
+                    ..Config::default()
+                },
+            )
+            .unwrap();
+            let counts = &report.primary_metrics["event_counts"];
+            let count = |kind: &str| counts.get(kind).and_then(|v| v.as_u64()).unwrap_or(0);
+            let applied = !(topology == Topology::Constitutive && consent == Consent::Initiator);
+            let unilateral = topology == Topology::Control && consent == Consent::Initiator;
+            assert_eq!(count("unilateral_change"), u64::from(unilateral));
+            assert_eq!(count("amendment_awaiting_consent"), u64::from(!applied));
+            let state = tgc_demo::store::Host::open(root.join("primary"))
+                .unwrap()
+                .state()
+                .unwrap();
+            let amendment = &state.records["amendment"];
+            assert_eq!(
+                amendment.decision.kind,
+                if applied {
+                    D::Permitted
+                } else {
+                    D::DecisionRequired
+                }
+            );
+            // Earlier confirmed acts are unaffected by the change.
+            assert!(state.records["ordinary"].receipt.is_some());
+            assert!(state.records["newcomer-first"].receipt.is_some());
+            assert_eq!(report.pending_queue_items, 0);
+            audit::verify_transcript(&state.events).unwrap();
+        }
+    }
+}
+
+#[test]
 fn repeat_runs_have_identical_semantic_transcripts() {
     let t = Temp::new();
     let a = run(&t.0.join("a"), Config::default()).unwrap();

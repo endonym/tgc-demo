@@ -146,12 +146,14 @@ fn execute(
 fn grantor_consent_does_not_replace_owner_or_controller_approval() {
     for topology in [Topology::Control, Topology::Constitutive] {
         for verb in ["propose", "accept", "amend", "promote"] {
-            // Control requires its controller; amendments/promotions also require owners.
+            // Control requires its controller (the agent here); amendments and
+            // promotions also require the delegation grantor (the officer here),
+            // but not the owners.
             let missing: &[usize] =
                 if topology == Topology::Control && matches!(verb, "propose" | "accept") {
                     &[2]
                 } else if topology == Topology::Control {
-                    &[0, 1, 2]
+                    &[2, 3]
                 } else {
                     &[0, 1]
                 };
@@ -217,7 +219,8 @@ fn grantor_consent_does_not_replace_owner_or_controller_approval() {
                         &signers
                     )
                     .unwrap(),
-                    D::DecisionRequired
+                    D::DecisionRequired,
+                    "{topology:?} {verb} without signer {omitted}"
                 );
                 assert_eq!(field.host().occurrences().unwrap(), before);
                 if matches!(verb, "amend" | "promote") {
