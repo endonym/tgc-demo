@@ -1,12 +1,12 @@
 # TGC settlement demonstration
 
-Participants authorise bounded work in advance, so agents can perform ordinary actions without asking for approval each time. The container checks each proposed action against those terms and records its authority and outcome. Exceptions and changes require the specified consent. A separate recipient can check the attached exception evidence under its own policy, without consulting the original container.
+Participants authorise bounded work in advance, so agents can perform ordinary actions without asking for approval each time. The Activity Field Container checks each proposed action against those terms and records its authority and outcome. Exceptions and changes require the specified consent. A separate recipient can check the attached exception evidence under its own policy, without consulting the original container.
 
-This Rust demonstration implements an Activity Field Container with two authority topologies: **controlled** activity uses environment authority; **constitutive** activity uses participant commitments.
+This Rust demonstration implements the Activity Container (`Field` in the code) with two authority topologies: under **control**, one controller can change the terms (in this fixture, the principal); under **constitutive** authority, every party named in the terms must accept a change.
 
 It runs participants, a scripted optimizer, identity and standing fixtures, an independent recipient and durable infrastructure mocks in one local process. Financial settlement is the example activity and it's no coincidence that the architecture carries the same name. The kernel and action-boundary model are generic; the demo makes no LLM calls or real asset transfers.
 
-Start here, then read [architecture and protocol](docs/architecture.md) for the boundaries and [validation](docs/validation.md) for claims linked to executable tests. The [deployment manifest](MANIFEST.md) describes the local deployment and integration responsibilities. The [interactive walkthrough](https://thegenerativecommons.org/activity-container.html) presents recorded Rust executions.
+Start here, then read [architecture and protocol](docs/architecture.md) for the boundaries and [validation](docs/validation.md) for claims linked to executable tests. The [deployment manifest](MANIFEST.md) describes the local deployment and integration responsibilities. The [interactive walkthrough](https://thegenerativecommons.org/settlement/activity-container.html) presents recorded Rust executions.
 
 ## Run and inspect
 
@@ -26,7 +26,7 @@ The run exercises all four kernel outcomes, resolves both queues and closes with
 The three movements are:
 
 1. **Constitution.** The parties establish what the agent may do, under which conditions, and how an exception can be authorised. Proposal, acceptance and publication are governed acts. The agent confirms and settles through durable record mocks.
-2. **Enforcement.** The optimizer selects a cheaper venue outside its ordinary mandate. The instruction is prevented. An officer proposes a separate exception under its own eligibility rules. It requires acceptance of that exact effect and retains the officer's accountable proof. Approval does not widen the failed ordinary mandate.
+2. **Enforcement.** The optimizer selects a cheaper venue outside its ordinary mandate. The instruction is prevented. An officer proposes a separate exception under its own eligibility rules. It requires acceptance of that exact effect and retains the officer's accountable proof. The officer's acceptance does not widen the failed ordinary mandate.
 3. **Composition and change.** A newcomer discovers published terms, satisfies admission criteria and acts on its own account. Participants can propose a changed interpretation. A disputed interpretation enters a queue for resolution. Adopting changed terms requires the specified consents. An independent recipient validates the attached upstream exception and applies its own refusal, acceptance or unresolved policy.
 
 ```sh
@@ -35,7 +35,7 @@ The three movements are:
 ./demo matrix --out runs/matrix
 ```
 
-The matrix covers twelve combinations: two topologies, reuse/fork and refuse/honour/indeterminate. Both topologies use the same optimizer, gate and adapters. Both require consent from the principal—the participant granting the agent authority to act on their behalf. The comparison exposes authority and approval differences.
+The matrix covers twelve combinations: two topologies, reuse/fork and refuse/honour/indeterminate. Both topologies use the same optimizer, gate and adapters. Both require consent from the principal—the participant granting the agent authority to act on their behalf. The comparison shows who can change the terms.
 
 The matrix also runs four amendment cases (`--amendment agreed|initiator`, beat `3d`): the principal tightens the agreed limit from 800 to 600 mid-activity, with or without the counterparty's signature. Under control topology the controller's signature alone changes the terms; under constitutive topology the change waits for the counterparty. In every case, acts already confirmed still resolve to the terms they cite.
 
@@ -67,7 +67,7 @@ Replay executes the Rust flow in a fresh store and compares the complete semanti
 
 The model uses authenticated identity or standing, bounded authority and evidence appropriate to the activity. The demo supplies identity and standing through simulated Proof of Honesty (PoH). `Field` checks participant presentations through an issuer verifier. Deployments can implement that integration through existing institutional systems.
 
-The proof producer is the recorded accountable bearer for an action. The record connects that bearer to the governing terms, approvals and consequence references. Participating institutions resolve identity and administer the applicable consequences.
+The proof producer is the recorded accountable bearer for an action. The record connects that bearer to the governing terms, acceptances and consequence references. Participating institutions resolve identity and administer the applicable consequences.
 
 A deployment choosing PoH would replace its simulation with authenticated issuance, live proof verification, revocation and inspection mechanisms. Other deployments can integrate their established identity and accountability systems. The current mock adapter records instructions and confirmations; integration with a real resource supplies the corresponding effectful capability.
 
@@ -95,6 +95,6 @@ cargo run --locked --offline --release --example independent_recipient
 cargo run --locked --offline --release --example durable_effect
 ```
 
-The `authoring` module builds bound instructions and scoped endorsements. `Field` is the implementation name for the Activity Field Container or Activity Container for short. See [Evidence capture](tools/dx/README.md) for generating and checking local recordings.
+The `authoring` module builds bound instructions and scoped endorsements. See [Evidence capture](tools/dx/README.md) for generating and checking local recordings.
 
 The vendored kernel's source fingerprints are recorded in [kernel provenance](vendor/kernel-source.json). The demo uses [GCL–0.x](LICENSE); the same kernel's [licence](vendor/constitutive-action/LICENSE) is retained with its source.
