@@ -15,7 +15,10 @@ def check_evidence(data):
  return inventory
 
 def check(data):
- m=json.loads((data/'manifest.json').read_text());require(len(m['runs'])==12, 'Expected twelve branches')
+ m=json.loads((data/'manifest.json').read_text())
+ branches=[r for r in m['runs'] if not r.get('amendment')]
+ require(len(branches)==12, 'Expected twelve branches')
+ require(sorted(r['id'] for r in m['runs'] if r.get('amendment'))==[f'{t}-amend-{c}' for t in ['constitutive','control'] for c in ['agreed','initiator']], 'Expected four amendment runs')
  count=0
  for entry in m['runs']:
   root=data/'runs'/entry['id'];p=root/'run.json';require(hashlib.sha256(p.read_bytes()).hexdigest()==entry['sha256'], 'Run hash mismatch')
@@ -52,6 +55,6 @@ def check(data):
  require(inventory['case_directories']==m['validation']['case_directories'], 'Case directory count mismatch')
  require(inventory['governance_crash_cases']==m['validation']['governance_crash_cases'], 'Crash case count mismatch')
  require(hashlib.sha256((data/'test-results.txt').read_bytes()).hexdigest()==m['tests']['transcript_sha256'], 'Transcript hash mismatch')
- print(f'PASS: {len(m["runs"])} branches, {count} exact decision checkpoints, 7 host cases, {len(inventory["files"])} evidence files.')
+ print(f'PASS: {len(branches)} branches, {len(m["runs"])-len(branches)} amendment runs, {count} exact decision checkpoints, 7 host cases, {len(inventory["files"])} evidence files.')
 if __name__=='__main__':
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('data',type=Path);check(p.parse_args().data)
