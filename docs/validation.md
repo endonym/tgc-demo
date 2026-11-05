@@ -13,7 +13,7 @@ The recorded validation on **23 October 2026** passed 104 workspace test results
 | Claim | Executable evidence |
 |---|---|
 | Delegation requires the principal's consent to the exact governance action in both topologies; changes require consent from the affected grantors | [Delegation-consent tests](../tests/delegation_consent.rs), including `both_topologies_require_the_grantor_for_constitution_and_activation` and `amendments_require_old_and_new_grantors_including_removal` |
-| An officer's approval cannot widen a failed ordinary mandate; an exception needs its own exact acceptance | `exception_requires_exact_officer_acceptance_and_cannot_widen_mandate` in [protocol tests](../tests/protocol.rs) |
+| An officer's acceptance cannot widen a failed ordinary mandate; an exception needs its own exact acceptance | `exception_requires_exact_officer_acceptance_and_cannot_widen_mandate` in [protocol tests](../tests/protocol.rs) |
 | Changing the payload, destination, interpretation, route or proof binding prevents dispatch under the earlier decision | `exact_effect_and_metadata_binding_reject_tampering_without_dispatch` in [protocol tests](../tests/protocol.rs) |
 | New credential holders and a newly published moderator can participate without field registration | `newcomer_is_not_a_fixture_membership_list` and `selected_lead_accepts_another_published_moderator_without_field_registration` in [protocol tests](../tests/protocol.rs) |
 | A recipient validates upstream authority under its own policy | `peer_rejects_unapproved_upstream_even_when_its_own_policy_honours` in [protocol tests](../tests/protocol.rs), plus the [independent recipient example](../examples/independent_recipient.rs) |
@@ -47,6 +47,6 @@ To inspect a freshly generated scenario separately:
 
 ## Scope
 
-This is a runnable implementation of the container's decision-to-effect path. The tests exercise constituted authority, exact consent, proof expiry and epoch checks, simulated credential revocation, authority withdrawal, controlled local effects, recovery and the evidence they leave. Identity, standing, attestations and human responses are supplied by local fixtures, including simulated Proof of Honesty. A production integration can connect trusted sources and a real resource adapter while retaining the same action boundary.
+This is a runnable implementation of the Activity Container's decision-to-effect path. The tests exercise constituted authority, exact consent, proof expiry and epoch checks, simulated credential revocation, authority withdrawal, controlled local effects, recovery and the evidence they leave. Identity, standing, attestations and human responses are supplied by local fixtures, including simulated Proof of Honesty. A production integration can connect trusted sources and a real resource adapter while retaining the same action boundary.
 
 The application runs locally. Concurrency and crash/recovery tests also exercise the host reservation and adapter boundary. They are evidence for the behaviours listed above, not a throughput benchmark. The [deployment manifest](../MANIFEST.md) sets out the operator's integration responsibilities.

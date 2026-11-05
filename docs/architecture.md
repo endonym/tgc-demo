@@ -2,7 +2,7 @@
 
 ## Action boundary
 
-An Activity Field Container supports two authority topologies: controlled activity uses environment authority; constitutive activity uses participant commitments. For a mediated effect, the host-controlled adapter executes only the exact effect admitted under recorded authority. The host validates the supplied proofs, their bindings and required acceptances. It keeps the credentials and access needed to execute the action, orders reservations against changes of authority, and records what happened. The kernel evaluates the supplied snapshot; it does not determine an agent's internal objectives.
+An Activity Field Container supports two authority topologies: under control, one controller can change the terms; under constitutive authority, every owner named in the terms must accept a change. For a mediated effect, the host-held adapter executes only the exact effect admitted under recorded authority. The host validates the supplied proofs, their bindings and required acceptances. It keeps the credentials and access needed to execute the action, orders reservations against changes of authority, and records what happened. The kernel evaluates the supplied snapshot; it does not determine an agent's internal objectives.
 
 | Module | Responsibility |
 |---|---|
@@ -17,7 +17,7 @@ An Activity Field Container supports two authority topologies: controlled activi
 
 Only the adapter can write a mock external effect. Its mutation functions are crate-private, require a persisted ticket and compare the actual effect with the admitted effect. Participant APIs cannot dispatch directly.
 
-Activity recovery acquires exclusive ownership and applies the activity's migration policy before reconciling reserved attempts; generic host recovery refuses activity stores.
+Activity recovery acquires the exclusive write lock and applies the activity's migration policy before reconciling reserved attempts; generic host recovery refuses activity stores.
 
 Identity and standing can be supplied by an institution's existing systems or by Proof of Honesty (PoH), according to the activity. This implementation uses the concrete `identity::Issuers` and `Proof` types. A field receives presentations and never creates them. Participants can validate public material before submission; recipients validate again at their own boundary. Peer validation has no reference to the originating `Field`, although the simulation supplies both with the same read-only issuer verifier.
 
@@ -43,9 +43,9 @@ The host supplies `host.tick` from the execution call and derives `host.count` f
 
 ## Authority and change
 
-An ordinary delegated action needs a scoped grant from the principal—the participant on whose behalf the agent acts. The participant giving that grant is the grantor. In this demo, proposing and accepting that path requires the principal's PoH-backed consent to the exact governance action, even when the principal is outside the owner/controller set.
+An ordinary delegated action needs a scoped grant from the principal—the participant on whose behalf the agent acts. The participant giving that grant is the grantor. In this demo, proposing and accepting that path requires the principal's PoH-backed consent to the exact governance action, even when the principal is not the controller or one of the path's owners, the parties named in its terms.
 
-Amendments and promotions require renewed consent from the previous and resulting grantors, including removal of delegation. Changes to scope, delegate, validity or consequence terms therefore require fresh approval.
+Amendments and promotions require renewed consent from the previous and resulting grantors, including removal of delegation. Changes to scope, delegate, validity or consequence terms therefore require fresh acceptance.
 
 The exception route has its own eligibility predicate, authority and required officer acceptance. It does not convert a failed ordinary mandate into permission.
 
@@ -53,7 +53,7 @@ The proof producer remains the recorded accountable bearer for each act. Delegat
 
 Control topology establishes procedures under environment authority; constitutive topology establishes them under participant commitments. Both preserve grantor consent. In the fixture the controller is also the initial grantor, so initial control activation requires one acceptance and constitutive activation requires both owners. A distinct grantor adds its own acceptance. The topologies differ most when terms change: under control topology the controller amends or promotes without the owners' acceptance; under constitutive topology every affected owner, before and after the change, must accept.
 
-Lifecycle verbs are `propose`, `accept`, `amend`, `withdraw`, `contest`, `escalate`, `fork`, `publish`, `resolve` and `promote`. Promotion requires a resolved queue item for the same path and offered interpretation, plus the required consents. Control amendment and promotion require environment authority and the grantor's acceptance, not the owners'. Withdrawal removes future path authority; credential revocation is separate. Neither erases an earlier occurrence.
+Lifecycle verbs are `propose`, `accept`, `amend`, `withdraw`, `contest`, `escalate`, `fork`, `publish`, `resolve` and `promote`. Promotion requires a resolved queue item for the same path and offered interpretation, plus the required consents. Control amendment and promotion require environment authority and the grantor's acceptance, not the owners'. Any owner can withdraw a path alone; withdrawal removes that agreement's future authority on every route. Its terms stay published, and others can constitute their own path from them. Credential revocation is separate. Neither erases an earlier occurrence.
 
 Before new delegated work can execute, the store must contain a confirmed activation, amendment or promotion with the grantor's acceptance of that exact governance action. An existing store without that grant cannot authorize fresh delegated work; the parties can constitute replacement terms. Historical records and completed replay identities are retained.
 
@@ -96,7 +96,7 @@ The adapter has its own durable file and lock. It performs the exact effect unde
 
 An `Indeterminate` decision, evidence and pending queue entry are committed together. Reopening reconstructs missing queue entries from recorded decisions and preserves confirmed resolutions. Existing stores with a missing journal or adapter ledger fail closed. Confirmed effects are checked against the modeled adapter record rather than inferred from a receipt alone.
 
-`Field::reopen` rebuilds commitments, discovery, active paths and recipient policy from bootstrap and confirmed acts. One active owner holds an OS lifetime lock per activity store, covering creation, mutation and recovery. Other handles can inspect but cannot mutate that activity. Independent activities have independent owners; the generic host still supports concurrent handles for its own profiles.
+`Field::reopen` rebuilds commitments, discovery, active paths and recipient policy from bootstrap and confirmed acts. One active writer holds an OS lifetime lock per activity store, covering creation, mutation and recovery. Other handles can inspect but cannot mutate that activity. Independent activities have independent writers; the generic host still supports concurrent handles for its own profiles.
 
 ## Auditing and metrics
 
