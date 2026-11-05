@@ -79,7 +79,7 @@ def prepare(runs):
   host['cases'].append({'id':point,'title':{'after-reservation':'Process stops after reservation','after-external':'Process stops after external success'}[point],'exit_code':interrupted.returncode,'before':before,'after':after,'after_second_recovery':again,'scope':'Counts include earlier constitution and confirmation effects in this run.'})
  write(runs/'host.json',host)
  seal_preparation(runs,inputs)
- print('Prepared twelve runs, six examples, test transcript and two actual crash recoveries.',flush=True)
+ print('Prepared twelve runs, four amendment runs, six examples, test transcript and two actual crash recoveries.',flush=True)
 
 def export_run(path,out):
  command([BIN,'verify',path]);report=read(path/'report.json');discovery=read(path/'discovery.json')
@@ -113,7 +113,10 @@ def export_run(path,out):
  no_private(bundle);write(target/'run.json',bundle)
  for filename in ['report.json','discovery.json','semantic.json']:shutil.copyfile(path/filename,target/filename)
  a=next(a for a in actions if a['intent']['proposal_id']=='path-accept');promotion=next((a for a in actions if a['intent']['effect']['operation']=='promote'),None)
- return {'id':path.name,'topology':report['config']['topology'],'composition':report['config']['composition'],'downstream':report['config']['downstream'],'semantic_hash':report['semantic_hash'],'constitution_acceptances':len(a['snapshot']['profile']['required_acceptances']),'promotion_acceptances':len(promotion['snapshot']['profile']['required_acceptances']) if promotion else None,'discretionary_onboarding_events':report['primary_metrics']['discretionary_onboarding_events'],'composition_latency_ns':report['primary_metrics']['composition_latency_ns'][0],'sha256':sha(target/'run.json')}
+ entry={'id':path.name,'topology':report['config']['topology'],'composition':report['config']['composition'],'downstream':report['config']['downstream'],'semantic_hash':report['semantic_hash'],'constitution_acceptances':len(a['snapshot']['profile']['required_acceptances']),'promotion_acceptances':len(promotion['snapshot']['profile']['required_acceptances']) if promotion else None,'discretionary_onboarding_events':report['primary_metrics']['discretionary_onboarding_events'],'composition_latency_ns':report['primary_metrics']['composition_latency_ns'][0],'sha256':sha(target/'run.json')}
+ # Amendment runs add the beat 3d consent setting; the twelve branches omit it.
+ if report['config'].get('amendment'):entry['amendment']=report['config']['amendment']
+ return entry
 
 def source_files(root):
  for name in ['.gitignore','Cargo.toml','Cargo.lock','README.md','MANIFEST.md','LICENSE','demo','check']:
@@ -199,6 +202,9 @@ def collect(runs,out):
   for composition in ['reuse','fork']:
    for downstream in ['refuse','honour','unresolved']:
     records.append(export_run(runs/f'{topology}-{composition}-{downstream}',out))
+ for topology in ['control','constitutive']:
+  for consent in ['agreed','initiator']:
+   records.append(export_run(runs/f'{topology}-amend-{consent}',out))
  print('Verified every branch and assembled public records.',flush=True)
  outputs={name:read(runs/'lessons'/f'{name}.json') for name in EXAMPLES}
  for name,value in outputs.items():no_private(value);write(data/'examples'/f'{name}.json',value)

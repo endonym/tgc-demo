@@ -23,8 +23,9 @@ Use new, separate directories for prepared runs and collected evidence. Existing
 output directories are never overwritten. If a command fails, any partial output
 remains available for inspection; use a new directory when retrying.
 
-Preparation captures twelve scenario branches, six examples with assertions, workspace
-and overlapping standalone Kernel tests, and two actual process-crash recoveries.
+Preparation captures twelve scenario branches, four amendment runs (beat `3d`), six
+examples with assertions, workspace and overlapping standalone Kernel tests, and two
+actual process-crash recoveries.
 Preparation records hashes of the source, tooling, executables and outputs.
 Collection checks these before and after processing and verifies each scenario
 journal. Changed inputs or outputs require fresh preparation.
@@ -39,7 +40,9 @@ normalised. Private issuer material and input archives are excluded.
 The checker verifies branch hashes, whether recorded events match their decisions,
 whether payloads and evidence match their recorded bindings, and whether receipts
 refer to the correct attempts. It also checks crash recovery, transcript counts
-and hashes, and the expected regression records.
+and hashes, and the expected regression records. It expects the twelve branches and
+the four amendment runs, so a collection made before the amendment runs existed
+needs the checker from the commit that produced it.
 
 To capture tests, formatting checks and examples together with a local archive of
 their source inputs, use
