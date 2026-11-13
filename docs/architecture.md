@@ -43,21 +43,21 @@ The host supplies `host.tick` from the execution call and derives `host.count` f
 
 ## Authority and change
 
-An ordinary delegated action needs a scoped grant from the principal—the participant on whose behalf the agent acts. The participant giving that grant is the grantor. In this demo, proposing and accepting that path requires the principal's PoH-backed consent to the exact governance action, even when the principal is not the controller or one of the path's owners, the parties named in its terms.
+An ordinary delegated action needs a scoped delegation from the principal—the participant on whose behalf the agent acts. The participant giving that delegation is the delegator. A delegation is a commitment, not an access grant: it binds because the delegator consented to its exact terms, and it changes only with the delegator's renewed consent. Code and test identifiers call the delegation a `grant` and the delegator a `grantor`. In this demo, proposing and accepting that path requires the principal's PoH-backed consent to the exact governance action, even when the principal is not the controller or one of the path's owners, the parties named in its terms.
 
-Amendments and promotions require renewed consent from the previous and resulting grantors, including removal of delegation. Changes to scope, delegate, validity or consequence terms therefore require fresh acceptance.
+Amendments and promotions require renewed consent from the previous and resulting delegators, including removal of delegation. Changes to scope, delegate, validity or consequence terms therefore require fresh acceptance.
 
 The exception route has its own eligibility predicate, authority and required officer acceptance. It does not convert a failed ordinary mandate into permission.
 
 The proof producer remains the recorded accountable bearer for each act. Delegation provides authority to act without erasing that attribution. A downstream act has its own proof and preserves the upstream evidence. The relevant institutions determine and administer consequences; the demo preserves the applicable consequence references for those institutions.
 
-Control topology establishes procedures under environment authority; constitutive topology establishes them under participant commitments. Both preserve grantor consent. In the fixture the controller is also the initial grantor, so initial control activation requires one acceptance and constitutive activation requires both owners. A distinct grantor adds its own acceptance. The topologies differ most when terms change: under control topology the controller amends or promotes without the owners' acceptance; under constitutive topology every affected owner, before and after the change, must accept.
+Control topology establishes procedures under environment authority; constitutive topology establishes them under participant commitments. Both preserve delegator consent. In the fixture the controller is also the initial delegator, so initial control activation requires one acceptance and constitutive activation requires both owners. A distinct delegator adds its own acceptance. The topologies differ most when terms change: under control topology the controller amends or promotes without the owners' acceptance; under constitutive topology every affected owner, before and after the change, must accept.
 
-Lifecycle verbs are `propose`, `accept`, `amend`, `withdraw`, `contest`, `escalate`, `fork`, `publish`, `resolve` and `promote`. Promotion requires a resolved queue item for the same path and offered interpretation, plus the required consents. Control amendment and promotion require environment authority and the grantor's acceptance, not the owners'. Any owner can withdraw a path alone; withdrawal removes that agreement's future authority on every route. Its terms stay published, and others can constitute their own path from them. Credential revocation is separate. Neither erases an earlier occurrence.
+Lifecycle verbs are `propose`, `accept`, `amend`, `withdraw`, `contest`, `escalate`, `fork`, `publish`, `resolve` and `promote`. Promotion requires a resolved queue item for the same path and offered interpretation, plus the required consents. Control amendment and promotion require environment authority and the delegator's acceptance, not the owners'. Any owner can withdraw a path alone; withdrawal removes that agreement's future authority on every route. Its terms stay published, and others can constitute their own path from them. Credential revocation is separate. Neither erases an earlier occurrence.
 
-Before new delegated work can execute, the store must contain a confirmed activation, amendment or promotion with the grantor's acceptance of that exact governance action. An existing store without that grant cannot authorize fresh delegated work; the parties can constitute replacement terms. Historical records and completed replay identities are retained.
+Before new delegated work can execute, the store must contain a confirmed activation, amendment or promotion with the delegator's acceptance of that exact governance action. An existing store without that delegation cannot authorize fresh delegated work; the parties can constitute replacement terms. Historical records and completed replay identities are retained.
 
-Field recovery rejects an unexecuted reservation lacking the grant while reconciling an effect already observed under its original replay identity. Grant validity is established at constitution; later changes of the grantor's standing do not automatically cancel it.
+Field recovery rejects an unexecuted reservation lacking the delegation while reconciling an effect already observed under its original replay identity. A delegation's validity is established at constitution; later changes of the delegator's standing do not automatically cancel it.
 
 ## Discovery, composition and extension
 
@@ -100,7 +100,7 @@ An `Indeterminate` decision, evidence and pending queue entry are committed toge
 
 ## Auditing and metrics
 
-Every decision records the original kernel outcome, complete snapshot, evidence objects, accountable proof and governance material. Receipts record persisted outcomes. Local audit rederives predicates, inheritance, payload bindings, recipient policy, grant evidence and usage counts where the stored evidence supports them. Identity, standing and seat ownership remain supplied verifier claims.
+Every decision records the original kernel outcome, complete snapshot, evidence objects, accountable proof and governance material. Receipts record persisted outcomes. Local audit rederives predicates, inheritance, payload bindings, recipient policy, delegation evidence and usage counts where the stored evidence supports them. Identity, standing and seat ownership remain supplied verifier claims.
 
 `verify RUN` reconciles event history with action records, reservations, receipts, queues, mock effects, reports, semantic exports and discovery reconstructed from confirmed acts. It verifies local evidence and does not establish the history of an external resource. Hashes support integrity within this trust boundary; an operator controlling both evidence and capabilities is outside it.
 

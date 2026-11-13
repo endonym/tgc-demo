@@ -35,7 +35,7 @@ The three movements are:
 ./demo matrix --out runs/matrix
 ```
 
-The matrix covers twelve combinations: two topologies, reuse/fork and refuse/honour/indeterminate. Both topologies use the same optimizer, gate and adapters. Both require consent from the principal—the participant granting the agent authority to act on their behalf. The comparison shows who can change the terms.
+The matrix covers twelve combinations: two topologies, reuse/fork and refuse/honour/indeterminate. Both topologies use the same optimizer, gate and adapters. Both require consent from the principal—the participant delegating authority to the agent to act on their behalf. The comparison shows who can change the terms.
 
 The matrix also runs four amendment cases (`--amendment agreed|initiator`, beat `3d`): the principal tightens the agreed limit from 800 to 600 mid-activity, with or without the counterparty's signature. Under control topology the controller's signature alone changes the terms; under constitutive topology the change waits for the counterparty. In every case, acts already confirmed still resolve to the terms they cite.
 
